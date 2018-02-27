@@ -2,7 +2,8 @@
 
 Written by Brandon T. Locke (CC-BY)
 
-## Overview 
+## Overview
+[View slides](https://docs.google.com/presentation/d/1yaviL05bo_buZJFQK3u3NI7gnmvW3zVgz7W40uRqR_Y/edit?usp=sharing) 
 ### Civic Data
 
 It is quite common for civic data to be shared in formats that are confusing, ill-formed, or incomplete. There are many reasons for this, including the quirks of their (often proprietary) software, language and coding that may be unfamiliar to people outside of the organization, and that open data is most often an unfunded mandate.
@@ -64,9 +65,7 @@ This tool won't work on any times that are 12:xx PM, so we'll need to make a qui
 ### Geocoding
 This dataset has the locations of each traffic stop in it, but for many mapping platforms, knowing the street address isn't enough. Luckily, OpenRefine can use Geolocation APIs to find a latitude and longitude for addresses - even if they're just cross-street descriptions like the ones most commonly used in this dataset.
 
-#### Quick Workshop Version
-
-*We'll do a small subset of these traffic stops using Google Maps, which doesn't require a user key to access the geocoder. The downsides of using Google Maps are that they do not allow the data to be used in platforms besides Google Maps, and that they have a limit of 2,500 requests per day. This process is taken from the [OpenRefine Wiki](https://github.com/OpenRefine/OpenRefine/wiki/Geocoding), which also includes instructions on using the Google API in batches to complete an entire datset*
+*We'll do a small subset of these traffic stops using Google Maps, which doesn't require a user key to access the geocoder. The downsides of using Google Maps are that they do not allow the data to be used in platforms besides Google Maps, and that they have a limit of 2,500 requests per day. This process is taken from the [OpenRefine Wiki](https://github.com/OpenRefine/OpenRefine/wiki/Geocoding), which also includes instructions on using the Google API in batches to complete an entire datset. [Click here to see instructions for doing the complete dataset](#full-geocoding-instructions)*
 
 Since there's a limit of 2,500 requests per day and the API takes a bit of time, we'll filter out just two rows to gather latitude and longitude.
 
@@ -87,17 +86,6 @@ Since there's a limit of 2,500 requests per day and the API takes a bit of time,
 
 - Enter `with(value.parseJson().results[0].geometry.location, pair, pair.lat +", " + pair.lng)` and call the new column 'latlng.' Hit OK. This will parse the JSON and correctly format the latitute and longitude in the neew column.
 - You can delete the 'geocodingResponse' column (Edit Column > Remove This Column) after you have already extracted the lat/lng coordinates.
-
-#### Full Development 
-*Note: this will take an hour or two to process fully, so it's a good idea to set it up to run overnight*
-
-- Get a MapQuest API Key from the [MapQuest Developer Site](https://developer.mapquest.com/) - click the 'Get your Free API Key' button on the front page and fill out the information.
-- Once you have an API key, Location > Edit Column > Add Column by Fetching URLs... and enter this expression: `'http://open.mapquestapi.com/nominatim/v1/search.php?' + 'key=YOUR KEY&' + 'format=json&' + 'q=' + escape(value, 'url')` **Note: be sure to add your own API key in the above expression where it says `*YOUR KEY*`**
-- Name the column 'geocodingResponse' and click OK. This will take quite some time to finish.
-- The new 'geocodingResponse' column won't be very clear or useful - it will be the full JSON response with all of the information Google has about that location.
-- Click geocodingResponse > Edit Column > Add Column based on this column
-- Enter `with(value.parseJson().resourceSets[0].resources[0].point.coordinates, pair, pair[0] +", " + pair[1])` and call the new column 'latlng.' Hit OK. This will parse the JSON and correctly format the latitute and longitude in the neew column.
-- You should see that the resulting column has the lattitude and longitude for the address or cross streets.
 
 ### Correcting Typos and Merging Terms
 One of the most tedious parts of data cleaning is finding the typos and mistakes in the data, and similarly, finding multiple terms that are essentially the same or are intended to be the same, and merging them together.
@@ -125,6 +113,17 @@ One good way to find typos or categories you can collapse is by doing text facet
 In the top right corner, you can click on 'Export' and save the data in a number of different formats, including csv and HTML tables.
 
 You may also want to export the entire project. This is useful if you want to share the project with others, or if you want to continue working on a different machine. It's also useful for transparency and documentation, as every change you've made is documented (and reversible).
+
+#### Full Geocoding Instructions
+*Note: this will take an hour or two to process fully, so it's a good idea to set it up to run overnight*
+
+- Get a MapQuest API Key from the [MapQuest Developer Site](https://developer.mapquest.com/) - click the 'Get your Free API Key' button on the front page and fill out the information.
+- Once you have an API key, Location > Edit Column > Add Column by Fetching URLs... and enter this expression: `'http://open.mapquestapi.com/nominatim/v1/search.php?' + 'key=YOUR KEY&' + 'format=json&' + 'q=' + escape(value, 'url')` **Note: be sure to add your own API key in the above expression where it says `*YOUR KEY*`**
+- Name the column 'geocodingResponse' and click OK. This will take quite some time to finish.
+- The new 'geocodingResponse' column won't be very clear or useful - it will be the full JSON response with all of the information Google has about that location.
+- Click geocodingResponse > Edit Column > Add Column based on this column
+- Enter `with(value.parseJson().resourceSets[0].resources[0].point.coordinates, pair, pair[0] +", " + pair[1])` and call the new column 'latlng.' Hit OK. This will parse the JSON and correctly format the latitute and longitude in the neew column.
+- You should see that the resulting column has the lattitude and longitude for the address or cross streets.
 
 ## Lansing, MI Traffic Stops
 
